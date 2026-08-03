@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="424" height="346" viewBox="0 0 424 346" role="img" aria-labelledby="title description">
+  <title id="title">ASCII portrait of Rémi Menguy</title>
+  <desc id="description">A monochrome portrait built entirely from text characters.</desc>
+  <style>
+    text {
+      fill: #6e7781;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      font-variant-ligatures: none;
+      white-space: pre;
+    }
+  </style>
+  <text x="10" y="18">                       .,  :,.                          </text>
+  <text x="10" y="31">                    ,.....:s:                           </text>
+  <text x="10" y="44">                   .,. .  :;                            </text>
+  <text x="10" y="57">                  .::: , .:;.     :,                    </text>
+  <text x="10" y="70">                    ., .  isi     ,.                    </text>
+  <text x="10" y="83">              ,.      .   ,;;:    .                     </text>
+  <text x="10" y="96">              ..          .   .   .                     </text>
+  <text x="10" y="109">                            .;;,                        </text>
+  <text x="10" y="122">                          .sS#hi..                      </text>
+  <text x="10" y="135">                       ,,  :r2#A                        </text>
+  <text x="10" y="148">                    :iiAhH3. A@Br                       </text>
+  <text x="10" y="161">                .. .2B&amp;&amp;@@2.:S@@#                       </text>
+  <text x="10" y="174">                  ,.A#&amp;&amp;&amp;3  ,HB&amp;&amp;r .                    </text>
+  <text x="10" y="187">                 .,,:shBBr,::sG&amp;5,...                   </text>
+  <text x="10" y="200">                 ..:,.:39B##9&amp;@@S,...                   </text>
+  <text x="10" y="213">                   ::,,iG#sAHSBBM.                      </text>
+  <text x="10" y="226">                   .;;:;AG52G#993                       </text>
+  <text x="10" y="239">                    ,;ii;XHB&amp;BB&amp;2                       </text>
+  <text x="10" y="252">                    ,,,iriXMB@@@5                       </text>
+  <text x="10" y="265">                    ,:..,;;;s22s.                       </text>
+  <text x="10" y="278">                    ,;,..,:,.                           </text>
+  <text x="10" y="291">                    :r;,.,::,,..                        </text>
+  <text x="10" y="304">               .  ..,rr;:,,:,...                        </text>
+  <text x="10" y="317">          :s5ASH53::,;ri;:,,,...          . .           </text>
+  <text x="10" y="330">      .r3G&amp;@@@@#B@GXr,,:::,...           ...            </text>
+</svg>
