@@ -17,7 +17,7 @@
 
 ## 01 — About
 
-I turn ideas into useful, carefully crafted digital products — from design and prototyping to production.
+Hello, I’m Rémi Menguy. I enjoy coding and building projects that make everyday life easier, both for myself and for others.
 
 ## 02 — Stack
 
