@@ -1,0 +1,208 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kaki Bauhaus</title>
+<style>
+  /* A Bauhaus print: a block of tiles centred on white paper, turning in choreographed waves. */
+  :root {
+    --paper: #f6f4ee;
+    --kaki: #4e5b27;
+    --ink: #161614;
+    --accent: #e0a526;
+  }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: var(--paper); }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+
+<canvas id="tiles" role="img" aria-label="A block of army khaki, black and white Bauhaus tiles with an ochre accent, centred on white paper, quarter circles, half circles, discs and bars turning a quarter turn in slow waves"></canvas>
+
+<script>
+(() => {
+  const QUARTER = Math.PI / 2;
+  const LOOP = 20;          // seconds; WAVES waves, each turning every tile a quarter turn
+  const WAVES = 4;
+  const ROWS = 3;           // tiles from top to bottom
+  const TILE = 0.25;        // tile size, as a fraction of the screen height
+  const MIN_MARGIN = 0.07;  // smallest white margin left and right, as a fraction of the width
+  const SWEEP = 2.2;        // seconds for a wave to cross the screen
+  const TURN = 1.6;         // seconds for one tile's quarter turn
+  const SEED = 1925;        // the year the Bauhaus moved to Dessau; change it for another layout
+  const MAX_FPS = 60;
+
+  const css = getComputedStyle(document.documentElement);
+  const C = Object.fromEntries(['paper', 'kaki', 'ink', 'accent']
+    .map(name => [name, css.getPropertyValue('--' + name).trim()]));
+
+  // Tile colours (background, shape, second shape colour) and how often each is drawn.
+  const SCHEMES = [
+    [22, C.paper, C.kaki, C.ink],
+    [18, C.kaki, C.paper, C.ink],
+    [12, C.ink, C.paper, C.kaki],
+    [12, C.paper, C.ink, C.kaki],
+    [10, C.kaki, C.ink, C.paper],
+    [8, C.accent, C.ink, C.paper],
+    [7, C.paper, C.accent, C.ink],
+    [6, C.ink, C.accent, C.paper],
+  ];
+
+  // Each motif is drawn around the tile centre, h being half the tile size, before rotation.
+  const MOTIFS = {
+    quarter(ctx, h, t) {          // quarter disc from the top-left corner
+      ctx.fillStyle = t.fg;
+      ctx.beginPath();
+      ctx.moveTo(-h, -h);
+      ctx.arc(-h, -h, 2 * h, 0, QUARTER);
+      ctx.closePath();
+      ctx.fill();
+    },
+    half(ctx, h, t) {             // half disc hanging from the top edge
+      ctx.fillStyle = t.fg;
+      ctx.beginPath();
+      ctx.arc(0, -h, h, 0, Math.PI);
+      ctx.fill();
+    },
+    split(ctx, h, t) {            // disc in two colours
+      const r = h * 0.82;
+      ctx.fillStyle = t.fg;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, QUARTER, 3 * QUARTER);
+      ctx.fill();
+      ctx.fillStyle = t.fg2;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, -QUARTER, QUARTER);
+      ctx.fill();
+    },
+    arcs(ctx, h, t) {             // Truchet bands joining the middles of the edges
+      ctx.strokeStyle = t.fg;
+      ctx.lineWidth = h * 0.5;
+      ctx.beginPath();
+      ctx.arc(-h, -h, h, 0, QUARTER);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(h, h, h, Math.PI, 3 * QUARTER);
+      ctx.stroke();
+    },
+    bars(ctx, h, t) {
+      ctx.fillStyle = t.fg;
+      ctx.fillRect(-h, -h * 0.6, 2 * h, h * 0.4);
+      ctx.fillRect(-h, h * 0.2, 2 * h, h * 0.4);
+    },
+    block(ctx, h, t) {            // half the tile filled, with a disc sitting on the seam
+      ctx.fillStyle = t.fg;
+      ctx.fillRect(-h, -h, h, 2 * h);
+      ctx.fillStyle = t.fg2;
+      ctx.beginPath();
+      ctx.arc(0, 0, h * 0.42, 0, Math.PI * 2);
+      ctx.fill();
+    },
+  };
+  const MOTIF_WEIGHTS = [[26, 'quarter'], [22, 'half'], [14, 'split'], [12, 'arcs'], [12, 'bars'], [14, 'block']];
+
+  function mulberry32(a) {
+    return () => {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function pick(rand, weighted) {
+    let n = rand() * weighted.reduce((sum, w) => sum + w[0], 0);
+    for (const w of weighted) if ((n -= w[0]) < 0) return w;
+    return weighted[weighted.length - 1];
+  }
+  const ease = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+  const canvas = document.getElementById('tiles');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  let W = 0, H = 0, size = 0, tiles = [];
+
+  function layout() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    W = Math.round(window.innerWidth * dpr);
+    H = Math.round(window.innerHeight * dpr);
+    canvas.width = W;
+    canvas.height = H;
+
+    size = H * TILE;
+    const cols = Math.max(1, Math.floor((W * (1 - 2 * MIN_MARGIN)) / size));
+    const ox = (W - cols * size) / 2;
+    const oy = (H - ROWS * size) / 2;
+    const corner = Math.hypot(W / 2, H / 2);
+    const rand = mulberry32(SEED);
+    tiles = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < cols; c++) {
+        const left = c > 0 ? tiles[tiles.length - 1] : null;
+        const above = r > 0 ? tiles[tiles.length - cols] : null;
+        let scheme;
+        for (let tries = 0; tries < 8; tries++) {
+          scheme = pick(rand, SCHEMES);
+          if (scheme[1] !== left?.bg && scheme[1] !== above?.bg) break;
+        }
+        const x0 = Math.round(ox + c * size), x1 = Math.round(ox + (c + 1) * size);
+        const y0 = Math.round(oy + r * size), y1 = Math.round(oy + (r + 1) * size);
+        const nx = c / Math.max(1, cols - 1), ny = r / Math.max(1, ROWS - 1);
+        const fromCentre = Math.hypot((x0 + x1) / 2 - W / 2, (y0 + y1) / 2 - H / 2) / corner;
+        tiles.push({
+          x0, y0, x1, y1,
+          motif: MOTIFS[pick(rand, MOTIF_WEIGHTS)[1]],
+          bg: scheme[1], fg: scheme[2], fg2: scheme[3],
+          base: Math.floor(rand() * 4) * QUARTER,
+          dir: (r + c) % 2 ? -1 : 1,           // neighbours turn the opposite way, like gears
+          // When each wave reaches the tile, from 0 (first) to 1 (last).
+          delays: [(nx + ny) / 2, fromCentre, (1 - nx + ny) / 2, 1 - fromCentre],
+        });
+      }
+    }
+  }
+
+  function draw(t) {
+    const local = ((t % LOOP) + LOOP) % LOOP;
+    const period = LOOP / WAVES;
+    const h = size / 2;
+    ctx.fillStyle = C.paper;
+    ctx.fillRect(0, 0, W, H);
+    for (const tile of tiles) {
+      let turns = 0;
+      for (let k = 0; k < WAVES; k++) {
+        const start = k * period + tile.delays[k % tile.delays.length] * SWEEP;
+        turns += ease(Math.min(1, Math.max(0, (local - start) / TURN)));
+      }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(tile.x0, tile.y0, tile.x1 - tile.x0, tile.y1 - tile.y0);
+      ctx.clip();
+      ctx.fillStyle = tile.bg;
+      ctx.fillRect(tile.x0, tile.y0, tile.x1 - tile.x0, tile.y1 - tile.y0);
+      ctx.translate((tile.x0 + tile.x1) / 2, (tile.y0 + tile.y1) / 2);
+      ctx.rotate(tile.base + tile.dir * turns * QUARTER);
+      tile.motif(ctx, h, tile);
+      ctx.restore();
+    }
+  }
+
+  // Frame-exact rendering hook for the video exporter.
+  window.wallpaper = { draw, LOOP };
+  layout();
+  if (window.__WALLPAPER_RENDER__) return;
+
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let last = -Infinity;
+  function tick(now) {
+    if (now - last >= 1000 / MAX_FPS - 2) {
+      last = now;
+      draw(now / 1000);
+    }
+    if (!still.matches) requestAnimationFrame(tick);
+  }
+  function start() {
+    last = -Infinity;
+    if (still.matches) draw(0);
+    else requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize', () => { layout(); if (still.matches) draw(0); });
+  still.addEventListener('change', start);
+  start();
+})();
+</script>

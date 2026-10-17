@@ -139,9 +139,9 @@
   }
 
   // Frame-exact rendering hook for the video exporter.
-  window.spectrumWave = { draw, LOOP };
+  window.wallpaper = { draw, LOOP };
   resize();
-  if (window.__SPECTRUM_RENDER__) return;
+  if (window.__WALLPAPER_RENDER__) return;
 
   const still = window.matchMedia('(prefers-reduced-motion: reduce)');
   let last = -Infinity;
