@@ -1,13 +1,31 @@
-# Spectrum Wave
+# Fonds d'écran animés
 
-Fond d'écran animé inspiré de la vague de l'app Clocks sur macOS : un ruban de cercles translucides en forme de vague. Le ruban garde sa forme et c'est le dégradé (vert, bleu, rose, jaune, orange, puis magenta et indigo) qui avance et ondule à l'intérieur. La boucle dure 60 s et se répète sans coupure.
+Des fonds d'écran animés pour Mac, chacun en page HTML temps réel et en vidéo 4K qui boucle sans coupure.
+
+## Spectrum Wave
+
+Inspiré de la vague de l'app Clocks sur macOS : un ruban de cercles translucides en forme de vague. Le ruban garde sa forme et c'est le dégradé (vert, bleu, rose, jaune, orange, puis magenta et indigo) qui avance et ondule à l'intérieur. La boucle dure 60 s et se répète sans coupure.
 
 | Fichier | Usage |
 | --- | --- |
 | `spectrum-wave.html` | Version temps réel, nette à n'importe quelle résolution (4K, 5K, 6K) |
 | `spectrum-wave-3840x2160-60fps-h264.mp4` | Vidéo 4K 60 i/s en H.264 (CRF 14), boucle de 60 s, compatible avec toutes les apps |
-| `render-video.cjs` | Script qui régénère la vidéo depuis la page HTML |
+| `render-video.cjs` | Script qui régénère les vidéos depuis les pages HTML |
 | `spectrum-clock.jsx` | Widget [Übersicht](https://tracesof.net/uebersicht/) : l'heure et la date comme sur l'écran Clocks |
+
+## Mesh Gradient
+
+Le preset *Default* du shader Mesh Gradient de [Paper Shaders](https://shaders.paper.design) (rose, indigo, violet et bleu pâle), joué à mi-vitesse. Avec ses quatre couleurs, l'animation du shader revient exactement à son point de départ toutes les 80π secondes : la vidéo couvre ce cycle complet, donc elle boucle sans fondu ni coupure.
+
+| Fichier | Usage |
+| --- | --- |
+| `mesh-gradient.html` | Version temps réel (shader Paper Shaders 0.0.81 intégré) |
+| `mesh-gradient.src.js` | Source de la page avant bundling |
+| `mesh-gradient-3840x2160-30fps-hevc.mp4` | Vidéo 4K 30 i/s, HEVC 10 bits, boucle de 8 min 23 s |
+
+La vidéo est en HEVC 10 bits plutôt qu'en H.264 : pour un dégradé aussi lisse, elle pèse environ 10 fois moins lourd et n'a pas d'effet d'escalier dans les couleurs. macOS et Phosphene la lisent nativement.
+
+Paper Shaders : Copyright 2026 Paper, licence Apache 2.0.
 
 ## Mettre en fond d'écran sur Mac
 
@@ -21,13 +39,15 @@ Installe [Übersicht](https://tracesof.net/uebersicht/) (`brew install --cask ub
 
 ## Régénérer la vidéo
 
-Il faut Node.js et ffmpeg.
+Il faut Node.js et ffmpeg. Pour reconstruire `mesh-gradient.html` depuis sa source : `npm install @paper-design/shaders@0.0.81 esbuild` puis `npx esbuild mesh-gradient.src.js --bundle --minify --format=iife`.
 
 ```sh
 npm install playwright && npx playwright install chromium
 node render-video.cjs                                   # 4K 60 i/s, H.264
 node render-video.cjs --width 5120 --height 2880        # 5K pour un iMac / Studio Display
 node render-video.cjs --codec h264,hevc                 # ajoute une version HEVC 10 bits
+node render-video.cjs --page mesh-gradient.html --width 1920 --height 1080 --scale 2 \
+  --fps 30 --codec hevc --crf 20 --preset medium        # Mesh Gradient
 ```
 
-Les couleurs (`STOPS`), la durée de la boucle (`LOOP`), l'ondulation des couleurs (`RIPPLE`), l'épaisseur (`RADIUS`) et la hauteur de la vague (`AMPLITUDE`) se règlent en haut du script de `spectrum-wave.html`.
+Pour Spectrum Wave, les couleurs (`STOPS`), la durée de la boucle (`LOOP`), l'ondulation des couleurs (`RIPPLE`), l'épaisseur (`RADIUS`) et la hauteur de la vague (`AMPLITUDE`) se règlent en haut du script de `spectrum-wave.html`.

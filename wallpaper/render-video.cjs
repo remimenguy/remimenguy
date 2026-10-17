@@ -4,7 +4,8 @@
 //
 //   npm install playwright && npx playwright install chromium
 //   node render-video.cjs [--page spectrum-wave.html] [--width 3840] [--height 2160] [--fps 60]
-//                         [--codec h264|hevc|h264,hevc] [--out dir]
+//                         [--codec h264|hevc|h264,hevc] [--out dir] [--scale 2] [--preset slow] [--crf n]
+//   (--scale 2 renders at --width x --height and upscales the video 2x, for very smooth pages)
 //   (--frames 60 renders only the first 60 frames, for a quick test)
 //
 // Needs ffmpeg on the PATH. The page exposes window.wallpaper = { draw(t), LOOP }; one video is
@@ -16,7 +17,8 @@ const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
-const opts = { page: 'spectrum-wave.html', width: 3840, height: 2160, fps: 60, codec: 'h264', out: '.', workers: 3, frames: 0 };
+const opts = { page: 'spectrum-wave.html', width: 3840, height: 2160, fps: 60, codec: 'h264', out: '.', workers: 3, frames: 0,
+  scale: 1, preset: 'slow', crf: 0 };
 const argv = process.argv.slice(2);
 for (let i = 0; i < argv.length; i += 2) {
   const key = argv[i].replace(/^--/, '');
@@ -26,13 +28,14 @@ for (let i = 0; i < argv.length; i += 2) {
 const codecs = opts.codec.split(',');
 fs.mkdirSync(opts.out, { recursive: true });
 const name = path.basename(opts.page, '.html');
-const files = codecs.map(c => path.join(opts.out, `${name}-${opts.width}x${opts.height}-${opts.fps}fps-${c}.mp4`));
+const size = `${opts.width * opts.scale}x${opts.height * opts.scale}`;
+const files = codecs.map(c => path.join(opts.out, `${name}-${size}-${opts.fps}fps-${c}.mp4`));
 
 const CODECS = {
   // Plays in any player or wallpaper app.
-  h264: ['-c:v', 'libx264', '-preset', 'slow', '-crf', '14', '-pix_fmt', 'yuv420p', '-tag:v', 'avc1'],
+  h264: ['-c:v', 'libx264', '-preset', opts.preset, '-crf', String(opts.crf || 14), '-pix_fmt', 'yuv420p', '-tag:v', 'avc1'],
   // 10-bit HEVC: smoother gradients and a smaller file; plays natively on macOS.
-  hevc: ['-c:v', 'libx265', '-preset', 'slow', '-crf', '16', '-pix_fmt', 'yuv420p10le', '-tag:v', 'hvc1',
+  hevc: ['-c:v', 'libx265', '-preset', opts.preset, '-crf', String(opts.crf || 16), '-pix_fmt', 'yuv420p10le', '-tag:v', 'hvc1',
          '-x265-params', 'log-level=error'],
 };
 
@@ -54,7 +57,10 @@ const CODECS = {
   const ffmpeg = spawn('ffmpeg', [
     '-y', '-loglevel', 'error',
     '-f', 'image2pipe', '-framerate', String(opts.fps), '-c:v', 'png', '-i', '-',
-    ...codecs.flatMap((c, i) => [...CODECS[c], '-r', String(opts.fps), '-movflags', '+faststart', files[i]]),
+    ...codecs.flatMap((c, i) => [
+      ...(opts.scale > 1 ? ['-vf', `scale=iw*${opts.scale}:ih*${opts.scale}:flags=lanczos`] : []),
+      ...CODECS[c], '-r', String(opts.fps), '-movflags', '+faststart', files[i],
+    ]),
   ], { stdio: ['pipe', 'inherit', 'inherit'] });
   const done = new Promise((resolve, reject) => ffmpeg.on('close', code => code ? reject(new Error(`ffmpeg exited ${code}`)) : resolve()));
 
