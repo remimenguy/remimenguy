@@ -5,7 +5,7 @@ Fond d'écran animé inspiré de la vague de l'app Clocks sur macOS : un ruban d
 | Fichier | Usage |
 | --- | --- |
 | `spectrum-wave.html` | Version temps réel, nette à n'importe quelle résolution (4K, 5K, 6K) |
-| `spectrum-wave-3840x2160-60fps-h264.mp4` | Vidéo 4K 60 i/s en H.264 (CRF 14), compatible avec toutes les apps |
+| `spectrum-wave-3840x2160-60fps-h264.mp4` | Vidéo 4K 60 i/s en H.264 (CRF 14), boucle de 60 s, compatible avec toutes les apps |
 | `render-video.cjs` | Script qui régénère la vidéo depuis la page HTML |
 | `spectrum-clock.jsx` | Widget [Übersicht](https://tracesof.net/uebersicht/) : l'heure et la date comme sur l'écran Clocks |
 
