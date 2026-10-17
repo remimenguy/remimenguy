@@ -2,7 +2,9 @@
 // wallpaper. Date and weekday at the top right, time at the bottom right.
 // Install: Übersicht menu bar icon → Open Widgets Folder, then drop this file in.
 
-const LOCALE = 'en-US';   // 'fr-FR' for "17 OCT · SAMEDI"
+const LOCALE = 'fr-FR';   // 'en-US' for "OCT 17 · SATURDAY"
+const TIME_SIZE = 'max(44px, 6vh)';
+const TIME_BOTTOM = '120px';   // distance from the bottom of the screen; keeps the time above the Dock
 
 export const refreshFrequency = 1000;
 export const command = 'true';
@@ -32,9 +34,9 @@ const meta = {
 
 const time = {
   position: 'absolute',
-  bottom: '2.2vh',
+  bottom: TIME_BOTTOM,
   right: '1.5vw',
-  fontSize: 'max(20px, 2.9vh)',
+  fontSize: TIME_SIZE,
   fontWeight: 500,
   letterSpacing: '0.04em',
   color: '#a6a19c',
