@@ -4,7 +4,7 @@
 
 const LOCALE = 'fr-FR';   // 'en-US' for "OCT 17 · SATURDAY"
 const TIME_SIZE = 'max(44px, 6vh)';
-const TIME_BOTTOM = '120px';   // distance from the bottom of the screen; keeps the time above the Dock
+const TIME_BOTTOM = '95px';    // distance from the bottom of the screen; keeps the time above the Dock
 
 export const refreshFrequency = 1000;
 export const command = 'true';
