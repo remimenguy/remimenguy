@@ -2,7 +2,7 @@
 // Renders spectrum-wave.html to a seamless looping video, frame by frame, in headless Chromium.
 //
 //   npm install playwright && npx playwright install chromium
-//   node render-video.cjs [--width 3840] [--height 2160] [--fps 60] [--codec h264,hevc] [--out dir]
+//   node render-video.cjs [--width 3840] [--height 2160] [--fps 60] [--codec h264|hevc|h264,hevc] [--out dir]
 //   (--frames 60 renders only the first 60 frames, for a quick test)
 //
 // Needs ffmpeg on the PATH. One loop is spectrumWave.LOOP seconds, so the file repeats without a seam.
@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
-const opts = { width: 3840, height: 2160, fps: 60, codec: 'h264,hevc', out: '.', workers: 3, frames: 0 };
+const opts = { width: 3840, height: 2160, fps: 60, codec: 'h264', out: '.', workers: 3, frames: 0 };
 const argv = process.argv.slice(2);
 for (let i = 0; i < argv.length; i += 2) {
   const key = argv[i].replace(/^--/, '');
