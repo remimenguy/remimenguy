@@ -1,6 +1,6 @@
 # Spectrum Wave
 
-Fond d'écran animé inspiré de la vague de l'app Clocks sur macOS : un ruban de cercles translucides qui passe du vert au bleu, au rose, au jaune puis à l'orange, et qui ondule lentement. La boucle dure 40 s et se répète sans coupure.
+Fond d'écran animé inspiré de la vague de l'app Clocks sur macOS : un ruban de cercles translucides en forme de vague. Le ruban garde sa forme et c'est le dégradé (vert, bleu, rose, jaune, orange, puis magenta et indigo) qui avance et ondule à l'intérieur. La boucle dure 60 s et se répète sans coupure.
 
 | Fichier | Usage |
 | --- | --- |
@@ -10,9 +10,9 @@ Fond d'écran animé inspiré de la vague de l'app Clocks sur macOS : un ruban d
 
 ## Mettre en fond d'écran sur Mac
 
-**Avec la page HTML (gratuit)** : installe [Plash](https://sindresorhus.com/plash) depuis le Mac App Store, puis ajoute un site web en choisissant le fichier local `spectrum-wave.html`. Ajoute `#clock` à la fin de l'adresse pour afficher l'heure et la date comme dans Clocks.
+**Avec la vidéo (recommandé)** : [Phosphene](https://github.com/kageroumado/phosphene), gratuit et open source, pour macOS 26 Tahoe et plus récent. Installe-le avec `brew install --cask phosphene`, ajoute le fichier MP4, puis choisis-le dans *Réglages Système → Fond d'écran*, à côté des fonds Aerial d'Apple. Il marche aussi sur l'écran verrouillé, et la vidéo est décodée par la puce, donc ça consomme peu de batterie. Phosphene s'appuie sur une API privée d'Apple : une mise à jour de macOS peut le casser.
 
-**Avec la vidéo** : utilise une app de fond d'écran vidéo (Backdrop, par exemple) avec le fichier MP4. C'est l'option la plus économe en batterie, car la vidéo est décodée par la puce.
+**Avec la page HTML (gratuit)** : installe [Plash](https://sindresorhus.com/plash) depuis le Mac App Store, puis ajoute le fichier local `spectrum-wave.html` comme site web. Ajoute `#clock` à la fin de l'adresse pour afficher l'heure et la date comme dans Clocks.
 
 ## Régénérer la vidéo
 
@@ -25,4 +25,4 @@ node render-video.cjs --width 5120 --height 2880        # 5K pour un iMac / Stud
 node render-video.cjs --codec h264,hevc                 # ajoute une version HEVC 10 bits
 ```
 
-Les couleurs (`STOPS`), la durée de la boucle (`LOOP`), l'épaisseur (`RADIUS`) et la hauteur de la vague (`AMPLITUDE`) se règlent en haut du script de `spectrum-wave.html`.
+Les couleurs (`STOPS`), la durée de la boucle (`LOOP`), l'ondulation des couleurs (`RIPPLE`), l'épaisseur (`RADIUS`) et la hauteur de la vague (`AMPLITUDE`) se règlent en haut du script de `spectrum-wave.html`.

@@ -39,7 +39,7 @@
   }
 </style>
 
-<canvas id="wave" role="img" aria-label="A ribbon of overlapping translucent circles, green through blue, pink and yellow to orange, slowly undulating"></canvas>
+<canvas id="wave" role="img" aria-label="A wave-shaped ribbon of overlapping translucent circles, with a green, blue, pink, yellow and orange gradient slowly flowing through it"></canvas>
 <div class="clock" id="clock" hidden>
   <div class="meta"><span id="date"></span><span id="day"></span></div>
   <div class="time" id="time"></div>
@@ -48,16 +48,18 @@
 <script>
 (() => {
   const TAU = Math.PI * 2;
-  const LOOP = 40;              // seconds; every motion term completes whole cycles per loop
+  const LOOP = 60;              // seconds; every motion term completes whole cycles per loop
   const COUNT = 200;            // circles along the ribbon
   const SPAN = [-0.16, 1.16];   // first and last circle centre, as a fraction of the width
   const ALPHA = 0.3;            // opacity of each circle
   const RADIUS = 0.205;         // circle radius, as a fraction of the screen height
   const AMPLITUDE = 0.19;       // height of the wave, as a fraction of the screen height
+  const RIPPLE = 0.03;          // how far the colours sway back and forth as they flow
   const MAX_FPS = 30;
   const PAPER = '#ede9e6';
 
-  // Circle colours from the left end of the ribbon to the right (position 0..1, r, g, b).
+  // Gradient (position, r, g, b). 0..1 is the ribbon as on the Clocks screen, green to orange;
+  // 1..CYCLE carries it back to green through magenta and indigo so the flow can loop.
   const STOPS = [
     [0.00, 2, 72, 48],
     [0.15, 3, 95, 64],
@@ -80,7 +82,14 @@
     [0.90, 251, 140, 8],
     [0.93, 251, 98, 4],
     [1.00, 246, 64, 0],
+    [1.07, 236, 40, 60],
+    [1.15, 200, 40, 130],
+    [1.23, 140, 50, 170],
+    [1.31, 70, 55, 165],
+    [1.40, 25, 60, 120],
+    [1.50, 2, 72, 48],
   ];
+  const CYCLE = 1.5;            // length of the gradient loop, in ribbon lengths
 
   function colourAt(u) {
     let i = 1;
@@ -90,8 +99,10 @@
     return [1, 2, 3].map(c => Math.round(a[c] + (b[c] - a[c]) * k));
   }
 
-  const fills = Array.from({ length: COUNT }, (_, i) => {
-    const [r, g, b] = colourAt(i / (COUNT - 1));
+  // The ribbon keeps its shape; the gradient flows through it from left to right.
+  const SHADES = 2048;
+  const shades = Array.from({ length: SHADES }, (_, i) => {
+    const [r, g, b] = colourAt((CYCLE * i) / SHADES);
     return `rgba(${r},${g},${b},${ALPHA})`;
   });
 
@@ -110,18 +121,17 @@
   function draw(t) {
     const p = (t / LOOP) * TAU;
     const unit = Math.min(H, W / 1.4);
-    const swell = 1 + 0.12 * Math.sin(p);
+    const r = unit * RADIUS;
     ctx.fillStyle = PAPER;
     ctx.fillRect(0, 0, W, H);
     for (let i = 0; i < COUNT; i++) {
       const u = i / (COUNT - 1);
       const xn = SPAN[0] + (SPAN[1] - SPAN[0]) * u;
-      const y = H * 0.5 + unit * (
-        AMPLITUDE * swell * Math.cos(TAU * (xn - 0.15) / 0.9 - p) +
-        0.04 * Math.sin(p) * Math.sin(TAU * xn * 1.7 + 2 * p)
-      );
-      const r = unit * RADIUS * (1 + 0.06 * Math.sin(TAU * u * 1.5 - p));
-      ctx.fillStyle = fills[i];
+      const y = H * 0.5 + unit * AMPLITUDE * Math.cos(TAU * (xn - 0.15) / 0.9);
+      // Place in the gradient loop: one full cycle per LOOP, plus a gentle sway.
+      const c = u - (CYCLE * t) / LOOP + RIPPLE * Math.sin(TAU * 1.5 * u - 3 * p);
+      const m = ((c % CYCLE) + CYCLE) % CYCLE;
+      ctx.fillStyle = shades[Math.floor((m / CYCLE) * SHADES) % SHADES];
       ctx.beginPath();
       ctx.arc(xn * W, y, r, 0, TAU);
       ctx.fill();
