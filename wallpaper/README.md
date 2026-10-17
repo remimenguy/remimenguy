@@ -17,7 +17,7 @@ Fond d'écran animé inspiré de la vague de l'app Clocks sur macOS : un ruban d
 
 ## Afficher l'heure comme dans Clocks
 
-Installe [Übersicht](https://tracesof.net/uebersicht/) (`brew install --cask ubersicht`), puis clique sur son icône dans la barre des menus → *Open Widgets Folder* et dépose `spectrum-clock.jsx` dedans. La date et le jour s'affichent en haut à droite, l'heure en bas à droite, par-dessus le fond d'écran. En haut du fichier, `LOCALE` règle la langue (`'en-US'` pour l'anglais), `TIME_SIZE` la taille de l'heure et `TIME_BOTTOM` sa hauteur au-dessus du Dock.
+Installe [Übersicht](https://tracesof.net/uebersicht/) (`brew install --cask ubersicht`), puis clique sur son icône dans la barre des menus → *Open Widgets Folder* et dépose `spectrum-clock.jsx` dedans. La date et le jour s'affichent en haut à droite, l'heure en bas à droite, par-dessus le fond d'écran. En haut du fichier, `LOCALE` règle la langue (`'en-US'` pour l'anglais), `DATE_SIZE` la taille de la date, `TIME_SIZE` celle de l'heure et `TIME_BOTTOM` sa hauteur au-dessus du Dock.
 
 ## Régénérer la vidéo
 

@@ -3,8 +3,9 @@
 // Install: Übersicht menu bar icon → Open Widgets Folder, then drop this file in.
 
 const LOCALE = 'fr-FR';   // 'en-US' for "OCT 17 · SATURDAY"
+const DATE_SIZE = 'max(12px, 1.3vh)';
 const TIME_SIZE = 'max(44px, 6vh)';
-const TIME_BOTTOM = '95px';    // distance from the bottom of the screen; keeps the time above the Dock
+const TIME_BOTTOM = '70px';    // distance from the bottom of the screen; keeps the time above the Dock
 
 export const refreshFrequency = 1000;
 export const command = 'true';
@@ -27,7 +28,7 @@ const meta = {
   right: '1.5vw',
   display: 'flex',
   gap: '3vw',
-  fontSize: 'max(9px, 0.95vh)',
+  fontSize: DATE_SIZE,
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
 };
