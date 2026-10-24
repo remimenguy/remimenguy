@@ -7,7 +7,7 @@
 <h1 align="center">Rémi Menguy</h1>
 
 <p align="center">
-  Founder of <a href="https://www.looba.dev">Looba</a> · Currently building <a href="www.kroco.app">Kroco</a>
+  Founder of <a href="https://www.looba.dev">Looba</a> · Currently building <a href="https://www.kroco.app">Kroco</a>
 </p>
 
 <p align="center">
